@@ -2,7 +2,6 @@ package com.example.test_lab_week_12
 
 import android.content.Intent
 import android.os.Bundle
-import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModel
@@ -13,7 +12,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.test_lab_week_12.model.Movie
 import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
-import java.util.Calendar
 
 class MainActivity : AppCompatActivity() {
 
@@ -35,6 +33,7 @@ class MainActivity : AppCompatActivity() {
                 startActivity(intent)
             }
         })
+
         recyclerView.adapter = movieAdapter
 
         val movieRepository = (application as MovieApplication).movieRepository
@@ -46,18 +45,12 @@ class MainActivity : AppCompatActivity() {
                 }
             })[MovieViewModel::class.java]
 
-
         lifecycleScope.launch {
             repeatOnLifecycle(Lifecycle.State.STARTED) {
 
                 launch {
                     movieViewModel.popularMovies.collect { movies ->
-                        val currentYear = Calendar.getInstance().get(Calendar.YEAR).toString()
-                        movieAdapter.addMovies(
-                            movies.filter { movie ->
-                                movie.releaseDate?.startsWith(currentYear) == true
-                            }.sortedByDescending { it.popularity }
-                        )
+                        movieAdapter.addMovies(movies)
                     }
                 }
 

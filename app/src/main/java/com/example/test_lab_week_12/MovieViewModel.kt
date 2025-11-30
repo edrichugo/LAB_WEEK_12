@@ -7,7 +7,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.catch
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.util.Calendar
 
 class MovieViewModel(private val movieRepository: MovieRepository) : ViewModel() {
 
@@ -24,6 +26,15 @@ class MovieViewModel(private val movieRepository: MovieRepository) : ViewModel()
     private fun fetchPopularMovies() {
         viewModelScope.launch(Dispatchers.IO) {
             movieRepository.fetchMovies()
+                .map { movies ->
+                    val currentYear = Calendar.getInstance().get(Calendar.YEAR).toString()
+
+                    movies.filter { movie ->
+                        movie.releaseDate?.startsWith(currentYear) == true
+                    }.sortedByDescending {
+                        it.popularity
+                    }
+                }
                 .catch { exception ->
                     _error.value = "An exception occurred: ${exception.message}"
                 }
